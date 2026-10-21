@@ -1,0 +1,33 @@
+name: Build NpcBuilder
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSVC x64
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build
+        shell: cmd
+        run: cl /nologo /O2 /EHsc /LD /std:c++17 NpcBuilder.cpp /Fe:NpcBuilder.red user32.lib
+
+      - name: Collect files
+        shell: cmd
+        run: |
+          mkdir out
+          copy NpcBuilder.red out\
+          copy NpcBuilder.ini out\
+          copy models.txt out\
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NpcBuilder
+          path: out
